@@ -1,19 +1,20 @@
 {
-  "name": "stock-price",
+  "dependencies": {
+    "express": "^4.19.2",
+    "mongodb": "^4.17.2"
+  },
+  "name": "willmagann",
   "version": "1.0.0",
-  "description": "node app ",
+  "description": "stock",
   "main": "process.js",
+  "devDependencies": {},
   "scripts": {
-  "start": "node process.js"
-},
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
   "repository": {
-  "type": "git",
-  "url": ""
-},
+    "type": "git",
+    "url": "stock"
+  },
   "author": "",
-  "license": "ISC",
-  "bugs": {
-  "url": ""
-},
-  "homepage": ""
+  "license": "ISC"
 }
