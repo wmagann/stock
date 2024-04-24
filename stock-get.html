@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+
+    <style>
+        body {
+        font-family: "Monaco", monospace;
+        text-align: center;
+    }
+
+    h1 {
+        font-size: 60px;
+        background-color: #AEC3B0;
+        width: 80%;
+        border-radius: 10px;
+        text-align: center;
+        margin: auto;
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+
+    .top {
+        font-size: 25px;
+    }
+
+    button {
+        display: block;
+        margin: auto;
+        margin-top: 20px;
+        font-family: "Monaco", monospace;
+        font-size: 35px;
+        background-color: #ffffff;
+        border: 1px, solid, #000000;
+    }
+
+    button:hover {
+        background-color: #AEC3B0;
+    }
+
+    #input {
+        height: 30px;
+        width: 250px;
+    }
+
+    </style>
+</head>
+<body>
+    <h1>Stock Search</h1>
+    <form action="/process" method="get">
+        <div class="top">
+        <input type="text" name="search" id="input" placeholder="Enter stock ticker or company name">
+        <label><input type="radio" name="searchType" value="ticker"> Ticker Symbol</label>
+        <label><input type="radio" name="searchType" value="company"> Company Name</label>
+        </div>
+        <button type="submit">Search</button>
+    </form>
+</body>
+</html>
