@@ -2,7 +2,7 @@
   "name": "stock-price",
   "version": "1.0.0",
   "description": "node app ",
-  "main": "hello_app.js",
+  "main": "process.js",
   "scripts": {
   "start": "node process.js"
 },
