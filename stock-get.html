@@ -1,78 +1,61 @@
-const express = require('express');
-const MongoClient = require('mongodb').MongoClient;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
 
-const app = express();
-const port = 2000;
+    <style>
+        body {
+        font-family: "Monaco", monospace;
+        text-align: center;
+    }
 
-// MongoDB connection URI
-const uri = "mongodb+srv://wmagann:mvbbsk78@products.stxj7c9.mongodb.net/Stock";
+    h1 {
+        font-size: 60px;
+        background-color: #AEC3B0;
+        width: 80%;
+        border-radius: 10px;
+        text-align: center;
+        margin: auto;
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
 
-// Database and collection names
-const dbName = 'Stock';
-const collectionName = 'PublicCompanies';
+    .top {
+        font-size: 25px;
+    }
 
-// Middleware to parse request bodies
-app.use(express.urlencoded({ extended: true }));
+    button {
+        display: block;
+        margin: auto;
+        margin-top: 20px;
+        font-family: "Monaco", monospace;
+        font-size: 35px;
+        background-color: #ffffff;
+        border: 1px, solid, #000000;
+    }
 
-// Serve the HTML file
-app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/stock-get.html');
-});
+    button:hover {
+        background-color: #AEC3B0;
+    }
 
-// Process form submission
-app.get('/process', (req, res) => {
-    let searchQuery = req.query.search;
-    const searchType = req.query.searchType;
+    #input {
+        height: 30px;
+        width: 250px;
+    }
 
-    // Convert search query to lowercase
-    searchQuery = searchQuery.toLowerCase();
-
-    // Connect to MongoDB
-    MongoClient.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).send('Error connecting to database');
-        }
-
-        // Access the database and collection
-        const db = client.db(dbName);
-        const collection = db.collection(collectionName);
-
-        // Construct the query based on search type
-        let query = {};
-        if (searchType === 'ticker') {
-            query = { stockTicker: { $regex: new RegExp('^' + searchQuery, 'i') } };
-        } else if (searchType === 'company') {
-            query = { companyName: { $regex: new RegExp('^' + searchQuery, 'i') } };
-        }
-
-        // Find all documents in the collection that match the query
-        collection.find(query).toArray((err, results) => {
-            if (err) {
-                console.error(err);
-                client.close();
-                return res.status(500).send('Error searching for company');
-            }
-
-            if (results.length === 0) {
-                client.close();
-                return res.status(404).send('No matching companies found');
-            }
-
-            // Send the prices back to the client
-            let response = '';
-            results.forEach((result) => {
-                response += `The price for ${result.companyName} (${result.stockTicker}) is $${result.latestPrice}<br>`;
-            });
-            res.send(response);
-            client.close();
-        });
-    });
-});
-
-
-
-// Start the server
-app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-});
+    </style>
+</head>
+<body>
+    <h1>Stock Search</h1>
+    <form action="/process" method="get">
+        <div class="top">
+        <input type="text" name="search" id="input" placeholder="Enter stock ticker or company name">
+        <label><input type="radio" name="searchType" value="ticker"> Ticker Symbol</label>
+        <label><input type="radio" name="searchType" value="company"> Company Name</label>
+        </div>
+        <button type="submit">Search</button>
+    </form>
+</body>
+</html>
