@@ -2,7 +2,7 @@ const express = require('express');
 const MongoClient = require('mongodb').MongoClient;
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = 2000;
 
 // MongoDB connection URI
 const uri = "mongodb+srv://wmagann:mvbbsk78@products.stxj7c9.mongodb.net/Stock";
@@ -21,8 +21,11 @@ app.get('/', (req, res) => {
 
 // Process form submission
 app.get('/process', (req, res) => {
-    const searchQuery = req.query.search;
+    let searchQuery = req.query.search;
     const searchType = req.query.searchType;
+
+    // Convert search query to lowercase
+    searchQuery = searchQuery.toLowerCase();
 
     // Connect to MongoDB
     MongoClient.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
@@ -38,9 +41,9 @@ app.get('/process', (req, res) => {
         // Construct the query based on search type
         let query = {};
         if (searchType === 'ticker') {
-            query = { stockTicker: searchQuery };
+            query = { stockTicker: { $regex: new RegExp('^' + searchQuery, 'i') } };
         } else if (searchType === 'company') {
-            query = { companyName: searchQuery };
+            query = { companyName: { $regex: new RegExp('^' + searchQuery, 'i') } };
         }
 
         // Find all documents in the collection that match the query
@@ -66,6 +69,7 @@ app.get('/process', (req, res) => {
         });
     });
 });
+
 
 
 // Start the server
