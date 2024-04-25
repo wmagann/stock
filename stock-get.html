@@ -1,66 +1,78 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>User Information</title>
-</head>
-<body>
+const express = require('express');
+const MongoClient = require('mongodb').MongoClient;
 
-<?php
-include 'header.php';
+const app = express();
+const port = 2000;
 
-// Your database connection code
-$servername = "localhost";
-$username = "ugqlb33ihnf35";
-$password = "magann2020";
-$database = "dbed2glfukjapi";
+// MongoDB connection URI
+const uri = "mongodb+srv://wmagann:mvbbsk78@products.stxj7c9.mongodb.net/Stock";
 
-// Create connection
-$conn = new mysqli($servername, $username, $password, $database);
+// Database and collection names
+const dbName = 'Stock';
+const collectionName = 'PublicCompanies';
 
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+// Middleware to parse request bodies
+app.use(express.urlencoded({ extended: true }));
 
-if ($_SERVER["REQUEST_METHOD"] == "GET") {
-    // Collect form data
-    $first_name = isset($_GET['first_name']) ? $_GET['first_name'] : '';
-    $last_name = isset($_GET['last_name']) ? $_GET['last_name'] : '';
-    $email = isset($_GET['email']) ? $_GET['email'] : '';
-    $password = isset($_GET['password']) ? $_GET['password'] : '';
+// Serve the HTML file
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/stock-get.html');
+});
 
-    // Validate input (you may want to add more validation)
-    if (empty($first_name) || empty($last_name) || empty($email) || empty($password)) {
-        echo "Please fill out all fields.";
-    } elseif (strlen($password) < 8) {
-        echo "Password must be at least 8 characters long.";
-    } elseif (!preg_match('/[A-Z]/', $password) || !preg_match('/[a-z]/', $password) || !preg_match('/[^a-zA-Z]/', $password)) {
-        echo "Password must contain at least one uppercase letter, one lowercase letter, and one non-letter character.";
-    } else {
-        // Prepare and bind SQL statement
-        $stmt = $conn->prepare("INSERT INTO users (first_name, last_name, email, password) VALUES (?, ?, ?, ?)");
-        $stmt->bind_param("ssss", $first_name, $last_name, $email, $password);
+// Process form submission
+app.get('/process', (req, res) => {
+    let searchQuery = req.query.search;
+    const searchType = req.query.searchType;
 
-        // Execute the statement
-        if ($stmt->execute()) {
-            echo "<h2>User data has been saved:</h2>";
-            echo "<p>First Name: $first_name</p>";
-            echo "<p>Last Name: $last_name</p>";
-            echo "<p>Email: $email</p>";
-            echo "<p>Password: $password</p>";
-        } else {
-            echo "Error: " . $stmt->error;
+    // Convert search query to lowercase
+    searchQuery = searchQuery.toLowerCase();
+
+    // Connect to MongoDB
+    MongoClient.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).send('Error connecting to database');
         }
 
-        // Close statement
-        $stmt->close();
-    }
-}
+        // Access the database and collection
+        const db = client.db(dbName);
+        const collection = db.collection(collectionName);
 
-// Close connection
-$conn->close();
-?>
+        // Construct the query based on search type
+        let query = {};
+        if (searchType === 'ticker') {
+            query = { stockTicker: { $regex: new RegExp('^' + searchQuery, 'i') } };
+        } else if (searchType === 'company') {
+            query = { companyName: { $regex: new RegExp('^' + searchQuery, 'i') } };
+        }
+
+        // Find all documents in the collection that match the query
+        collection.find(query).toArray((err, results) => {
+            if (err) {
+                console.error(err);
+                client.close();
+                return res.status(500).send('Error searching for company');
+            }
+
+            if (results.length === 0) {
+                client.close();
+                return res.status(404).send('No matching companies found');
+            }
+
+            // Send the prices back to the client
+            let response = '';
+            results.forEach((result) => {
+                response += `The price for ${result.companyName} (${result.stockTicker}) is $${result.latestPrice}<br>`;
+            });
+            res.send(response);
+            client.close();
+        });
+    });
+});
 
 
-</body>
-</html>
+
+// Start the server
+app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+});
