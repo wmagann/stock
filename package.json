@@ -7,7 +7,7 @@
   "start": "node process.js"
 },
   "dependencies": {
-    "axios": "^0.24.0" // or "node-fetch": "^3.0.0" for node-fetch
+    "axios": "^0.24.0"
 },
   "repository": {
   "type": "git",
