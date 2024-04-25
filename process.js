@@ -2,7 +2,7 @@ const express = require('express');
 const MongoClient = require('mongodb').MongoClient;
 
 const app = express();
-const port = 2000;
+const port = process.env.PORT || 2000;
 
 // MongoDB connection URI
 const uri = "mongodb+srv://wmagann:mvbbsk78@products.stxj7c9.mongodb.net/Stock";
